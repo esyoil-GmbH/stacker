@@ -33,6 +33,9 @@ COPY --from=prerelease /usr/src/app/build/index.js .
 COPY --from=prerelease /usr/src/app/package.json .
 COPY --from=docker:dind /usr/local/bin/docker /usr/local/bin/
 
+RUN apt-get update
+RUN apt-get install git -y
+
 # run the app
 EXPOSE 3000/tcp
 ENTRYPOINT [ "bun", "run", "index.js" ]
