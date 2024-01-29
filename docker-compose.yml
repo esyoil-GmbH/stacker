@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  stacker:
+    build: .
+    environment:
+      - WEBHOOK_SECRET=super-secret-value
+      - HOME_PATH=/home/ops
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - /home/ops/stacks:/home/ops/stacks
+    ports:
+      - 3000:3000
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
