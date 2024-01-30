@@ -5,7 +5,7 @@ export const handleUpdate = async (
   composeFile: string,
   doPull: boolean
 ) => {
-  const pwd = `${process.env.HOME_PATH}/stacks/${stack}`;
+  const pwd = `${process.env.HOME_PATH}/${stack}`;
 
   if (doPull) {
     const pullResult = await $`git pull`.cwd(pwd);
