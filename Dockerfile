@@ -35,6 +35,7 @@ COPY --from=docker:dind /usr/local/bin/docker /usr/local/bin/
 
 RUN apt-get update
 RUN apt-get install git -y
+RUN git config --global --add safe.directory '*'
 
 # run the app
 EXPOSE 3000/tcp
