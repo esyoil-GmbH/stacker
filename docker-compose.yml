@@ -5,7 +5,7 @@ services:
     image: ghcr.io/esyoil-gmbh/stacker
     environment:
       - WEBHOOK_SECRET=super-secret-value
-      - HOME_PATH=/home/ops
+      - HOME_PATH=/home/ops/stacks
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - /home/ops/stacks:/home/ops/stacks
