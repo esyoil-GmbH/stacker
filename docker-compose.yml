@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   stacker:
-    build: .
+    image: ghcr.io/esyoil-gmbh/stacker
     environment:
       - WEBHOOK_SECRET=super-secret-value
       - HOME_PATH=/home/ops
