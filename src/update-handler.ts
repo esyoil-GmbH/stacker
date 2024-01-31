@@ -13,7 +13,7 @@ export const handleUpdate = async (
   }
 
   const upd =
-    await $`docker stack deploy -c ${composeFile} ${stack} --prune --with-registry-auth`.cwd(
+    await $`(set -a && . .env && set +a) || echo "tried to source .env but not found"; docker stack deploy -c ${composeFile} ${stack} --prune --with-registry-auth`.cwd(
       pwd
     );
 
