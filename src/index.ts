@@ -6,18 +6,19 @@ const app = new Elysia();
 app.get("/", () => "Hello Elysia");
 app.post(
   "/update/:secret",
-  ({ set, params: { secret }, body: { stack, composeFile, gitPull } }) => {
+  ({ set, params: { secret }, body: { stack, composeFile, gitPull, monitorTimeout } }) => {
     if (secret !== process.env.WEBHOOK_SECRET) {
       set.status = 401;
       throw new Error("Unauthorized");
     }
-    return handleUpdate(stack, composeFile, gitPull!);
+    return handleUpdate(stack, composeFile, gitPull!, monitorTimeout ?? 600);
   },
   {
     body: t.Object({
       stack: t.String(),
       composeFile: t.String(),
       gitPull: t.Boolean(),
+      monitorTimeout: t.Optional(t.Number()),
     }),
   }
 );
