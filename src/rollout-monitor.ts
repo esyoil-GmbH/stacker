@@ -71,6 +71,8 @@ export async function* monitorRollout(
   }
 
   const startTime = Date.now();
+  let seenUpdating = false;
+  const GRACE_PERIOD = 30; // seconds to wait for Swarm to start updating
 
   while (true) {
     const elapsed = Math.round((Date.now() - startTime) / 1000);
@@ -91,12 +93,19 @@ export async function* monitorRollout(
       }
     }
 
+    // Track if we've seen any service enter "updating" state
+    if (statuses.some((svc) => svc.state === "updating")) {
+      seenUpdating = true;
+    }
+
     const allConverged = statuses.every((svc) => {
       const [running, desired] = svc.replicas.split("/");
       return running === desired && svc.state !== "updating";
     });
 
-    if (allConverged) {
+    // Only declare success if we've seen an update in progress first,
+    // or the grace period has passed (handles no-op deploys)
+    if (allConverged && (seenUpdating || elapsed >= GRACE_PERIOD)) {
       yield { type: "progress", elapsed, services: statuses };
       yield { type: "result", ok: true, elapsed, services: statuses };
       return;

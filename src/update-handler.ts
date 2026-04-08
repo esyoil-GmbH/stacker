@@ -24,9 +24,9 @@ export const handleUpdate = async (
   }
 
   const upd =
-    await $`env $(cat .env | xargs) && docker stack deploy -c ${composeFile} ${stack} --prune --with-registry-auth`
+    await $`docker stack deploy -c ${composeFile} ${stack} --prune --with-registry-auth`
       .cwd(pwd)
-      .env({ ...confs });
+      .env({ ...process.env, ...confs });
 
   const deployOutput = upd.stdout.toString();
 
