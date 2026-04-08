@@ -1,11 +1,13 @@
 import { $ } from "bun";
+import { monitorRollout, type RolloutEvent } from "./rollout-monitor";
 const dotenv = require("dotenv");
 
 export const handleUpdate = async (
   stack: string,
   composeFile: string,
-  doPull: boolean
-) => {
+  doPull: boolean,
+  monitorTimeout: number = 600
+): Promise<Response> => {
   const pwd = `${process.env.HOME_PATH}/${stack}`;
 
   if (doPull) {
@@ -26,5 +28,25 @@ export const handleUpdate = async (
       .cwd(pwd)
       .env({ ...confs });
 
-  return upd.stdout.toString();
+  const deployOutput = upd.stdout.toString();
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      const encoder = new TextEncoder();
+      const write = (event: Record<string, unknown>) =>
+        controller.enqueue(encoder.encode(JSON.stringify(event) + "\n"));
+
+      write({ type: "deploy", output: deployOutput });
+
+      for await (const event of monitorRollout(stack, monitorTimeout)) {
+        write(event);
+      }
+
+      controller.close();
+    },
+  });
+
+  return new Response(stream, {
+    headers: { "Content-Type": "application/x-ndjson" },
+  });
 };

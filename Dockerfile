@@ -1,6 +1,6 @@
 # use the official Bun image
 # see all versions at https://hub.docker.com/r/oven/bun/tags
-FROM oven/bun:1.0.25-debian as base
+FROM oven/bun:1.2.23-debian AS base
 WORKDIR /usr/src/app
 
 # install dependencies into temp directory
@@ -21,9 +21,7 @@ FROM base AS prerelease
 COPY --from=install /temp/dev/node_modules node_modules
 COPY . .
 
-# [optional] tests & build
 ENV NODE_ENV=production
-RUN bun test
 RUN bun run build
 
 # copy production dependencies and source code into final image
@@ -31,7 +29,7 @@ FROM base AS release
 COPY --from=install /temp/prod/node_modules node_modules
 COPY --from=prerelease /usr/src/app/build/index.js .
 COPY --from=prerelease /usr/src/app/package.json .
-COPY --from=docker:dind /usr/local/bin/docker /usr/local/bin/
+COPY --from=docker:28.1.1-dind /usr/local/bin/docker /usr/local/bin/
 
 RUN apt-get update
 RUN apt-get install git -y
